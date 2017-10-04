@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
 import url from './config';
+import {Modal} from 'react-bootstrap';
+import CarTable from './CarTable';
 
-import {Form, FormControl, Button, Table, Collapse, FormGroup} from 'react-bootstrap';
+import {Form, FormControl, Button, FormGroup} from 'react-bootstrap';
 
 class App extends Component {
   constructor(props) {
     super (props);
     this.state = {
-      open : false,
+      showModal: false,
       cars : [],
       url: url,
       data: [],
@@ -15,55 +17,21 @@ class App extends Component {
     }
   }
 
-  componentWillMount() {
-      fetch(this.state.url, {
-        method: "GET"
-      }).then (res => {
-        return res.json();
-      }).then (data => {
-        let cars = data._embedded.cars
-        this.setState({cars: cars})
-        let table = document.getElementById('t-body');
-        for (let i = 0; i < cars.length; i++) {
-              const info = [];
-              Object.keys(cars[i]).forEach(function (key) {
-                let obj = cars[i][key];
-                info.push(obj);
-              });
-              let tr = document.createElement("tr");
-              for (let j = 0; j < info.length; j++) {
-                let td = document.createElement("td");
-                if (j === info.length - 1) {
-                  let data = [ ...this.state.links ];
-                  data[i] = info[j].self.href;
-                  this.setState({links:data})
-                  let but1 = document.createElement("button");
-                  let but2 = document.createElement("button");
-                  but1.className = "btn btn-danger delete_button"
-                  but2.className = "btn btn-primary edit_button"
-                  but1.onclick = () => this.delete_data(i);
-                  but2.onclick = () => this.edit_data(i)
-                  let t1 = document.createTextNode("Delete")
-                  let t2 = document.createTextNode("Edit")
-                  but1.appendChild(t1)
-                  but2.appendChild(t2)
-
-                  let div = document.createElement("div")
-                  div.appendChild(but1)
-                  div.appendChild(but2)
-                  td.appendChild(div)
-                }
-                else {
-                  let text = document.createTextNode(info[j]);
-                  td.appendChild(text);
-                }
-            tr.appendChild(td)
-            tr.id = i;
-            table.appendChild(tr)
-          }
-        }
-      })
+  get_data() {
+    fetch(this.state.url, {
+      method: "GET"
+    }).then (res => {
+      return res.json();
+    }).then(data => {
+      let cars = data._embedded.cars
+      this.setState({cars: cars})
+    })
   }
+
+  componentWillMount() {
+      this.get_data()
+  }
+
 
   send_data () {
     let data = this.state.data
@@ -73,7 +41,6 @@ class App extends Component {
       "company": data[2],
       "model": data[3]
     };
-    console.log(data_obj);
     fetch(this.state.url,
     {
       method: "POST",
@@ -82,32 +49,27 @@ class App extends Component {
         'Content-Type': 'application/json',
       }
     }).then( () => {
-      window.location.reload();
+      this.get_data()
     })
-  }
-
-  delete_data (i) {
-      console.log(i);
-      fetch(this.state.links[i], {
-            "method" : "DELETE"
-          }).then( () => {
-            window.location.reload()
-          })
-  }
-
-  edit_data(i) {
-    // TODO: add edit functionality
   }
 
   render() {
     return (
       <div>
-        <Button bsStyle = "primary" onClick={ ()=> this.setState({ open: !this.state.open })}>
-          Add Entry
-        </Button>
-        <Collapse in={this.state.open}>
+      <Button
+        bsStyle="primary"
+        bsSize="large"
+        onClick={() => this.setState({ showModal: true })}
+      >
+        Add Entry
+      </Button>
+      <Modal show={this.state.showModal} onHide={() => this.setState({ showModal: false })}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Entry</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
           <Form>
-            <FormGroup controlId="formBasicText">
+            <FormGroup>
               <FormControl
                 type="text"
                 onChange = {event => {
@@ -149,23 +111,19 @@ class App extends Component {
               />
 
             </FormGroup>
-              <Button bsStyle = "success" onClick = {() => this.send_data()}> Submit </Button>
-              <Button bsStyle = "danger" onClick={ ()=> this.setState({ open: !this.state.open })}> Cancel </Button>
           </Form>
-        </Collapse>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle = "success" onClick = {() => {
+            this.send_data();
+            this.setState({showModal:false})
+          }
+        } > Submit </Button>
+          <Button bsStyle = "danger" onClick={ ()=> this.setState({ showModal: false })}> Cancel </Button>
+        </Modal.Footer>
+      </Modal>
 
-        <Table striped>
-          <thead>
-            <tr>
-              <th>Registration Number</th>
-              <th>Production Date</th>
-              <th>Company</th>
-              <th>Model</th>
-              <th>Modify</th>
-            </tr>
-          </thead>
-          <tbody id="t-body"></tbody>
-      </Table>
+        <CarTable get_data = {this.get_data.bind(this)} cars = {this.state.cars}></CarTable>
     </div>
     )
   }
