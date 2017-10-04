@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import url from './config';
 import {Modal} from 'react-bootstrap';
 import CarTable from './CarTable';
+import url from './config';
 
 import {Form, FormControl, Button, FormGroup} from 'react-bootstrap';
 
