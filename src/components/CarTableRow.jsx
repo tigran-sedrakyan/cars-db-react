@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {ControlLabel, Modal, Button, Form, FormControl, FormGroup} from 'react-bootstrap';
+import {connect} from 'react-redux';
+import {editData, deleteData} from '../actions';
 
 class CarTableRow extends Component {
   constructor(props) {
@@ -13,11 +15,8 @@ class CarTableRow extends Component {
   }
 
   delete_data () {
-      fetch(this.state.link, {
-            "method" : "DELETE"
-          }).then(() => {
-            this.props.get_data()
-          })
+    this.props.deleteData(this.state.link)
+    this.props.get_data()
   }
 
   edit_data() {
@@ -33,15 +32,9 @@ class CarTableRow extends Component {
         "company": data[2],
         "model": data[3]
     }
-    fetch(this.state.link, {
-      "method": "PATCH",
-      "body": JSON.stringify(data_obj),
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }).then(() => {
-      this.props.get_data()
-    })
+
+    this.props.editData(this.state.link, data_obj);
+    this.props.get_data();
   }
 
   render() {
@@ -64,8 +57,9 @@ class CarTableRow extends Component {
               </Modal.Body>
               <Modal.Footer>
                 <Button bsStyle = "success" onClick = {() => {
-                  this.setState({showModal:false})
+                  this.setState({showDeleteModal:false})
                   this.delete_data();
+                  this.props.get_data();
                 }
               } > Yes </Button>
                 <Button bsStyle = "danger" onClick={ ()=> this.setState({ showDeleteModal: false })}> No </Button>
@@ -136,6 +130,7 @@ class CarTableRow extends Component {
               <Modal.Footer>
                 <Button bsStyle = "success" onClick = {() => {
                   this.edit_data();
+                  this.props.get_data()
                   this.setState({showEditModal:false})
                 }
               } > Save </Button>
@@ -150,4 +145,10 @@ class CarTableRow extends Component {
   }
 }
 
-export default CarTableRow;
+const mapStateToProps = (state) => {
+  return {
+    cars: state
+  }
+}
+
+export default connect (mapStateToProps, {editData, deleteData}) (CarTableRow);

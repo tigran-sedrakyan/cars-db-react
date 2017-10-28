@@ -3,7 +3,6 @@ import {Table} from 'react-bootstrap';
 import CarTableRow from './CarTableRow';
 
 class CarTable extends Component {
-
   render() {
     return (
       <Table striped>
