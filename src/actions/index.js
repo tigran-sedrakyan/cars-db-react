@@ -1,4 +1,4 @@
-import {GET_DATA, GET_DATA_SUCCESS, SEND_DATA, SEND_DATA_SUCCESS, EDIT_DATA, DELETE_DATA} from '../constants';
+import {GET_DATA, GET_DATA_SUCCESS, SEND_DATA, SEND_DATA_SUCCESS, EDIT_DATA, DELETE_DATA, RESET_COMPLETION, DATA_ERROR} from '../constants';
 
 export function getData () {
 	const action = {
@@ -45,4 +45,19 @@ export function sendDataSuccess () {
 		type: SEND_DATA_SUCCESS,
 	}
 	return action;
+}
+
+export function dataError(message) {
+	const action = {
+		type: DATA_ERROR,
+		message: message
+	}
+	return action
+}
+
+export function resetCompletion () {
+	const action = {
+		type: RESET_COMPLETION
+	}
+	return action
 }

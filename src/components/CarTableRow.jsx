@@ -7,19 +7,20 @@ class CarTableRow extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      link: this.props.info['_links'].self.href,
       showDeleteModal: false,
       showEditModal: false,
       data: []
     }
   }
 
+
   delete_data () {
-    this.props.deleteData(this.state.link)
-    this.props.get_data()
+    let link = this.props.info['_links'].self.href;
+    this.props.deleteData(link)
   }
 
   edit_data() {
+    let link = this.props.info['_links'].self.href;
     let data = this.state.data;
     for (let i = 0; i < 4; i++) {
       if (data[i] === "") {
@@ -33,8 +34,7 @@ class CarTableRow extends Component {
         "model": data[3]
     }
 
-    this.props.editData(this.state.link, data_obj);
-    this.props.get_data();
+    this.props.editData(link, data_obj);
   }
 
   render() {
@@ -59,7 +59,6 @@ class CarTableRow extends Component {
                 <Button bsStyle = "success" onClick = {() => {
                   this.setState({showDeleteModal:false})
                   this.delete_data();
-                  this.props.get_data();
                 }
               } > Yes </Button>
                 <Button bsStyle = "danger" onClick={ ()=> this.setState({ showDeleteModal: false })}> No </Button>
@@ -130,7 +129,6 @@ class CarTableRow extends Component {
               <Modal.Footer>
                 <Button bsStyle = "success" onClick = {() => {
                   this.edit_data();
-                  this.props.get_data()
                   this.setState({showEditModal:false})
                 }
               } > Save </Button>
@@ -145,10 +143,4 @@ class CarTableRow extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    cars: state
-  }
-}
-
-export default connect (mapStateToProps, {editData, deleteData}) (CarTableRow);
+export default connect (undefined, {editData, deleteData}) (CarTableRow);

@@ -4,7 +4,7 @@ import CarTable from './CarTable';
 import url from '../config';
 import _ from 'lodash';
 import {connect} from 'react-redux';
-import {getData, sendData} from '../actions';
+import {getData, sendData, resetCompletion} from '../actions';
 
 import {Form, FormControl, Button, FormGroup} from 'react-bootstrap';
 
@@ -24,6 +24,14 @@ class App extends Component {
     this.props.getData()
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.completion) {
+      this.get_data();
+    }
+    this.props.resetCompletion();
+
+  }
+
   send_data () {
     let data = this.state.data
     if (!(_.isEmpty(data))) {
@@ -34,7 +42,6 @@ class App extends Component {
         "model": data[3]
       };
       this.props.sendData(data_obj);
-      this.get_data();
       this.setState({data: []});
     }
   }
@@ -43,7 +50,7 @@ class App extends Component {
       this.get_data()
   }
 
-  render() {
+  render() {  
     return (
       <div>
       <Button
@@ -79,7 +86,6 @@ class App extends Component {
         <Modal.Footer>
           <Button bsStyle = "success" onClick = {() => {
             this.send_data();
-            this.get_data();
             this.setState({showModal:false})
           }
         } > Submit </Button>
@@ -92,10 +98,11 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({data, completion}) => {
   return {
-    cars: state
+    cars: data,
+    completion: completion
   }
 }
 
-export default connect (mapStateToProps, {getData, sendData}) (App);
+export default connect (mapStateToProps, {getData, sendData, resetCompletion}) (App);

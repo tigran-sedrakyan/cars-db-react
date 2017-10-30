@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects'
-import { getDataSuccess, sendDataSuccess } from '../actions'
+import { getDataSuccess, sendDataSuccess, dataError } from '../actions'
 import url from '../config'
 
 function* getData(action) {
@@ -8,25 +8,27 @@ function* getData(action) {
     	yield put(getDataSuccess(data));
     }
     catch (e) {
-    	yield put({type: "GET_DATA_ERROR", message: e.message});
+    	yield put(dataError(e.message));
    }
 }
 
 function* editData(action) {
 	try {
-		yield call(editHelper, action.link, action.data)
+		yield call(editHelper, action.link, action.data);
+		yield put(sendDataSuccess());
     }
     catch (e) {
-    	yield put({type: "GET_DATA_ERROR", message: e.message});
+    	yield put(dataError(e.message));
    }
 }
 
 function* deleteData(action) {
 	try {
-		yield call(deleteHelper, action.link)
+		yield call(deleteHelper, action.link);
+		yield put(sendDataSuccess());
     }
     catch (e) {
-    	yield put({type: "GET_DATA_ERROR", message: e.message});
+    	yield put(dataError(e.message));
    }
 }
 
@@ -36,7 +38,7 @@ function* sendData(action) {
     	yield put(sendDataSuccess());
     }
     catch (e) {
-    	yield put({type: "GET_DATA_ERROR", message: e.message});
+    	yield put(dataError(e.message));
    }
 }
 
@@ -61,7 +63,6 @@ const sendHelper = (url, data) => {
 }
 
 const editHelper = (data, link) => {
-	console.log(link)
 	return fetch (link,
 		{
 			"method": "PATCH",
